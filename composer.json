@@ -9,21 +9,8 @@
         "issues": "https://github.com/php-telegram-bot/core/issues",
         "source": "https://github.com/php-telegram-bot/core"
     },
-    "authors": [
-        {
-            "name": "Avtandil Kikabidze aka LONGMAN",
-            "email": "akalongman@gmail.com",
-            "homepage": "http://longman.me",
-            "role": "Developer"
-        },
-        {
-            "name": "PHP Telegram Bot Team",
-            "homepage": "https://github.com/php-telegram-bot/core/graphs/contributors",
-            "role": "Developer"
-        }
-    ],
     "require": {
-        "php": "^5.5|^7.0",
+        "php": "^7.1",
         "ext-pdo": "*",
         "ext-curl": "*",
         "ext-json": "*",

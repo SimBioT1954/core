@@ -148,10 +148,6 @@ abstract class Command
      */
     public function preExecute()
     {
-        if ($this->need_mysql && !($this->telegram->isDbEnabled() && DB::isDbConnected())) {
-            return $this->executeNoDb();
-        }
-
         if ($this->isPrivateOnly() && $this->removeNonPrivateMessage()) {
             $message = $this->getMessage();
 

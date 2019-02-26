@@ -36,7 +36,7 @@ class ServerResponse extends Entity
         unset($data['raw_data']);
         $data['raw_data'] = $data;
 
-        $is_ok  = isset($data['ok']) ? (bool) $data['ok'] : false;
+        $is_ok  = (bool) ($data['ok'] ?? false);
         $result = isset($data['result']) ? $data['result'] : null;
 
         if ($is_ok && is_array($result)) {

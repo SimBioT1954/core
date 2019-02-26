@@ -12,7 +12,6 @@ namespace Longman\TelegramBot\Entities;
 
 use Exception;
 use Longman\TelegramBot\Entities\InlineQuery\InlineEntity;
-use Longman\TelegramBot\TelegramLog;
 
 /**
  * Class Entity
@@ -36,7 +35,7 @@ abstract class Entity
      *
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public function __construct($data, $bot_username = '')
+    public function __construct ($data, $bot_username = '')
     {
         //Make sure we're not raw_data inception-ing
         if (array_key_exists('raw_data', $data)) {
@@ -57,7 +56,7 @@ abstract class Entity
      *
      * @return string
      */
-    public function toJson()
+    public function toJson ()
     {
         return json_encode($this->getRawData());
     }
@@ -67,7 +66,7 @@ abstract class Entity
      *
      * @return string
      */
-    public function __toString()
+    public function __toString ()
     {
         return $this->toJson();
     }
@@ -77,7 +76,7 @@ abstract class Entity
      *
      * @param array $data
      */
-    protected function assignMemberVariables(array $data)
+    protected function assignMemberVariables (array $data)
     {
         foreach ($data as $key => $value) {
             $this->$key = $value;
@@ -89,7 +88,7 @@ abstract class Entity
      *
      * @return array
      */
-    protected function subEntities()
+    protected function subEntities ()
     {
         return [];
     }
@@ -99,7 +98,7 @@ abstract class Entity
      *
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    protected function validate()
+    protected function validate ()
     {
     }
 
@@ -111,13 +110,13 @@ abstract class Entity
      *
      * @return mixed
      */
-    public function getProperty($property, $default = null)
+    public function getProperty ($property, $default = null)
     {
-        if (isset($this->$property)) {
-            return $this->$property;
-        }
+        // if (isset($this->$property)) {
+        return $this->$property ?? $default;
+        //   }
 
-        return $default;
+        //return $default;
     }
 
     /**
@@ -128,7 +127,7 @@ abstract class Entity
      *
      * @return mixed|null
      */
-    public function __call($method, $args)
+    public function __call ($method, $args)
     {
         //Convert method to snake_case (which is the name of the property)
         $property_name = strtolower(ltrim(preg_replace('/[A-Z]/', '_$0', substr($method, 3)), '_'));
@@ -170,7 +169,7 @@ abstract class Entity
      *
      * @return array
      */
-    protected function makePrettyObjectArray($class, $property)
+    protected function makePrettyObjectArray ($class, $property)
     {
         $new_objects = [];
 
@@ -196,7 +195,7 @@ abstract class Entity
      *
      * @return string
      */
-    public function escapeMarkdown($string)
+    public function escapeMarkdown ($string)
     {
         return str_replace(
             ['[', '`', '*', '_',],
@@ -215,7 +214,7 @@ abstract class Entity
      *
      * @return string|null
      */
-    public function tryMention($escape_markdown = false)
+    public function tryMention ($escape_markdown = false)
     {
         //TryMention only makes sense for the User and Chat entity.
         if (!($this instanceof User || $this instanceof Chat)) {
@@ -223,12 +222,12 @@ abstract class Entity
         }
 
         //Try with the username first...
-        $name        = $this->getProperty('username');
+        $name = $this->getProperty('username');
         $is_username = $name !== null;
 
         if ($name === null) {
             //...otherwise try with the names.
-            $name      = $this->getProperty('first_name');
+            $name = $this->getProperty('first_name');
             $last_name = $this->getProperty('last_name');
             if ($last_name !== null) {
                 $name .= ' ' . $last_name;

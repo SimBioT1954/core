@@ -220,12 +220,8 @@ class Request
      *
      * @throws TelegramException
      */
-    public static function initialize(Telegram $telegram)
+    public static function initialize (Telegram $telegram)
     {
-        if (!($telegram instanceof Telegram)) {
-            throw new TelegramException('Invalid Telegram pointer!');
-        }
-
         self::$telegram = $telegram;
         self::setClient(new Client(['base_uri' => self::$api_base_uri]));
     }
@@ -237,7 +233,7 @@ class Request
      *
      * @throws TelegramException
      */
-    public static function setClient(Client $client)
+    public static function setClient (Client $client)
     {
         if (!($client instanceof Client)) {
             throw new TelegramException('Invalid GuzzleHttp\Client pointer!');
@@ -252,7 +248,7 @@ class Request
      * @return string
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public static function getInput()
+    public static function getInput ()
     {
         // First check if a custom input has been set, else get the PHP input.
         if (!($input = self::$telegram->getCustomInput())) {
@@ -278,7 +274,7 @@ class Request
      *
      * @return array Fake response data
      */
-    public static function generateGeneralFakeServerResponse(array $data = [])
+    public static function generateGeneralFakeServerResponse (array $data = [])
     {
         //PARAM BINDED IN PHPUNIT TEST FOR TestServerResponse.php
         //Maybe this is not the best possible implementation
@@ -295,13 +291,13 @@ class Request
         //some data to let iniatilize the class method SendMessage
         if (isset($data['chat_id'])) {
             $data['message_id'] = '1234';
-            $data['date']       = '1441378360';
-            $data['from']       = [
+            $data['date'] = '1441378360';
+            $data['from'] = [
                 'id'         => 123456789,
                 'first_name' => 'botname',
                 'username'   => 'namebot',
             ];
-            $data['chat']       = ['id' => $data['chat_id']];
+            $data['chat'] = ['id' => $data['chat_id']];
 
             $fake_response['result'] = $data;
         }
@@ -319,10 +315,10 @@ class Request
      *
      * @return array
      */
-    private static function setUpRequestParams(array $data)
+    private static function setUpRequestParams (array $data)
     {
         $has_resource = false;
-        $multipart    = [];
+        $multipart = [];
 
         // Convert any nested arrays into JSON strings.
         array_walk($data, function (&$item) {
@@ -332,7 +328,7 @@ class Request
         //Reformat data array in multipart way if it contains a resource
         foreach ($data as $key => $item) {
             $has_resource |= (is_resource($item) || $item instanceof \GuzzleHttp\Psr7\Stream);
-            $multipart[]  = ['name' => $key, 'contents' => $item];
+            $multipart[] = ['name' => $key, 'contents' => $item];
         }
         if ($has_resource) {
             return ['multipart' => $multipart];
@@ -345,20 +341,20 @@ class Request
      * Execute HTTP Request
      *
      * @param string $action Action to execute
-     * @param array  $data   Data to attach to the execution
+     * @param array  $data Data to attach to the execution
      *
      * @return string Result of the HTTP Request
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public static function execute($action, array $data = [])
+    public static function execute ($action, array $data = [])
     {
         //Fix so that the keyboard markup is a string, not an object
         if (isset($data['reply_markup'])) {
             $data['reply_markup'] = json_encode($data['reply_markup']);
         }
 
-        $result                  = null;
-        $request_params          = self::setUpRequestParams($data);
+        $result = null;
+        $request_params = self::setUpRequestParams($data);
         $request_params['debug'] = TelegramLog::getDebugLogTempStream();
 
         try {
@@ -366,14 +362,14 @@ class Request
                 '/bot' . self::$telegram->getApiKey() . '/' . $action,
                 $request_params
             );
-            $result   = (string) $response->getBody();
+            $result = (string)$response->getBody();
 
             //Logging getUpdates Update
             if ($action === 'getUpdates') {
                 TelegramLog::update($result);
             }
         } catch (RequestException $e) {
-            $result = ($e->getResponse()) ? (string) $e->getResponse()->getBody() : '';
+            $result = ($e->getResponse()) ? (string)$e->getResponse()->getBody() : '';
         } finally {
             //Logging verbose debug output
             TelegramLog::endDebugLogTempStream('Verbose HTTP Request output:' . PHP_EOL . '%s' . PHP_EOL);
@@ -390,14 +386,14 @@ class Request
      * @return boolean
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public static function downloadFile(File $file)
+    public static function downloadFile (File $file)
     {
         if (empty($download_path = self::$telegram->getDownloadPath())) {
             throw new TelegramException('Download path not set!');
         }
 
         $tg_file_path = $file->getFilePath();
-        $file_path    = $download_path . '/' . $tg_file_path;
+        $file_path = $download_path . '/' . $tg_file_path;
 
         $file_dir = dirname($file_path);
         //For safety reasons, first try to create the directory, then check that it exists.
@@ -416,7 +412,7 @@ class Request
 
             return filesize($file_path) > 0;
         } catch (RequestException $e) {
-            return ($e->getResponse()) ? (string) $e->getResponse()->getBody() : '';
+            return ($e->getResponse()) ? (string)$e->getResponse()->getBody() : '';
         } finally {
             //Logging verbose debug output
             TelegramLog::endDebugLogTempStream('Verbose HTTP File Download Request output:' . PHP_EOL . '%s' . PHP_EOL);
@@ -431,7 +427,7 @@ class Request
      * @return resource
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public static function encodeFile($file)
+    public static function encodeFile ($file)
     {
         $fp = fopen($file, 'rb');
         if ($fp === false) {
@@ -453,31 +449,31 @@ class Request
      * @return \Longman\TelegramBot\Entities\ServerResponse
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public static function send($action, array $data = [])
+    public static function send ($action, array $data = [])
     {
-        self::ensureValidAction($action);
+        //  self::ensureValidAction($action);
         self::addDummyParamIfNecessary($action, $data);
 
         $bot_username = self::$telegram->getBotUsername();
+        /*
+                if (defined('PHPUNIT_TESTSUITE')) {
+                    $fake_response = self::generateGeneralFakeServerResponse($data);
 
-        if (defined('PHPUNIT_TESTSUITE')) {
-            $fake_response = self::generateGeneralFakeServerResponse($data);
+                    return new ServerResponse($fake_response, $bot_username);
+                }
+        */
+        //  self::ensureNonEmptyData($data);
 
-            return new ServerResponse($fake_response, $bot_username);
-        }
-
-        self::ensureNonEmptyData($data);
-
-        self::limitTelegramRequests($action, $data);
+        //  self::limitTelegramRequests($action, $data);
 
         $raw_response = self::execute($action, $data);
         $response = json_decode($raw_response, true);
-
-        if (null === $response) {
-            TelegramLog::debug($raw_response);
-            throw new TelegramException('Telegram returned an invalid response!');
-        }
-
+        /*
+                if (null === $response) {
+                    TelegramLog::debug($raw_response);
+                    throw new TelegramException('Telegram returned an invalid response!');
+                }
+        */
         $response = new ServerResponse($response, $bot_username);
 
         if (!$response->isOk() && $response->getErrorCode() === 401 && $response->getDescription() === 'Unauthorized') {
@@ -500,7 +496,7 @@ class Request
      * @param string $action
      * @param array  $data
      */
-    protected static function addDummyParamIfNecessary($action, array &$data)
+    protected static function addDummyParamIfNecessary ($action, array &$data)
     {
         if (in_array($action, self::$actions_need_dummy_param, true)) {
             // Can be anything, using a single letter to minimise request size.
@@ -515,7 +511,7 @@ class Request
      *
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    private static function ensureNonEmptyData(array $data)
+    private static function ensureNonEmptyData (array $data)
     {
         if (count($data) === 0) {
             throw new TelegramException('Data is empty!');
@@ -529,7 +525,7 @@ class Request
      *
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    private static function ensureValidAction($action)
+    private static function ensureValidAction ($action)
     {
         if (!in_array($action, self::$actions, true)) {
             throw new TelegramException('The action "' . $action . '" doesn\'t exist!');
@@ -546,20 +542,12 @@ class Request
      * @return \Longman\TelegramBot\Entities\ServerResponse
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public static function sendMessage(array $data)
+    public static function sendMessage (array $data)
     {
         $text = $data['text'];
 
-        do {
-            //Chop off and send the first message
-            $data['text'] = mb_substr($text, 0, 4096);
-            $response     = self::send('sendMessage', $data);
-
-            //Prepare the next message
-            $text = mb_substr($text, 4096);
-        } while (mb_strlen($text, 'UTF-8') > 0);
-
-        return $response;
+        $data['text'] = mb_substr($text, 0, 4096);
+        return self::send('sendMessage', $data);
     }
 
     /**
@@ -571,7 +559,7 @@ class Request
      * @return \Longman\TelegramBot\Entities\ServerResponse
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public static function __callStatic($action, array $data)
+    public static function __callStatic ($action, array $data)
     {
         // Make sure to add the action being called as the first parameter to be passed.
         array_unshift($data, $action);
@@ -589,139 +577,9 @@ class Request
      * @return \Longman\TelegramBot\Entities\ServerResponse
      * @throws \Longman\TelegramBot\Exception\TelegramException
      */
-    public static function emptyResponse()
+    public static function emptyResponse ()
     {
         return new ServerResponse(['ok' => true, 'result' => true], null);
     }
 
-    /**
-     * Send message to all active chats
-     *
-     * @param string $callback_function
-     * @param array  $data
-     * @param array  $select_chats_params
-     *
-     * @return array
-     * @throws TelegramException
-     */
-    public static function sendToActiveChats(
-        $callback_function,
-        array $data,
-        array $select_chats_params
-    ) {
-        self::ensureValidAction($callback_function);
-
-        $chats = DB::selectChats($select_chats_params);
-
-        $results = [];
-        if (is_array($chats)) {
-            foreach ($chats as $row) {
-                $data['chat_id'] = $row['chat_id'];
-                $results[]       = self::send($callback_function, $data);
-            }
-        }
-
-        return $results;
-    }
-
-    /**
-     * Enable request limiter
-     *
-     * @param boolean $enable
-     * @param array   $options
-     *
-     * @throws \Longman\TelegramBot\Exception\TelegramException
-     */
-    public static function setLimiter($enable = true, array $options = [])
-    {
-        if (DB::isDbConnected()) {
-            $options_default = [
-                'interval' => 1,
-            ];
-
-            $options = array_merge($options_default, $options);
-
-            if (!is_numeric($options['interval']) || $options['interval'] <= 0) {
-                throw new TelegramException('Interval must be a number and must be greater than zero!');
-            }
-
-            self::$limiter_interval = $options['interval'];
-            self::$limiter_enabled  = $enable;
-        }
-    }
-
-    /**
-     * This functions delays API requests to prevent reaching Telegram API limits
-     *  Can be disabled while in execution by 'Request::setLimiter(false)'
-     *
-     * @link https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
-     *
-     * @param string $action
-     * @param array  $data
-     *
-     * @throws \Longman\TelegramBot\Exception\TelegramException
-     */
-    private static function limitTelegramRequests($action, array $data = [])
-    {
-        if (self::$limiter_enabled) {
-            $limited_methods = [
-                'sendMessage',
-                'forwardMessage',
-                'sendPhoto',
-                'sendAudio',
-                'sendDocument',
-                'sendSticker',
-                'sendVideo',
-                'sendAnimation',
-                'sendVoice',
-                'sendVideoNote',
-                'sendMediaGroup',
-                'sendLocation',
-                'editMessageLiveLocation',
-                'stopMessageLiveLocation',
-                'sendVenue',
-                'sendContact',
-                'sendInvoice',
-                'sendGame',
-                'setGameScore',
-                'editMessageText',
-                'editMessageCaption',
-                'editMessageMedia',
-                'editMessageReplyMarkup',
-                'setChatTitle',
-                'setChatDescription',
-                'setChatStickerSet',
-                'deleteChatStickerSet',
-                'setPassportDataErrors',
-            ];
-
-            $chat_id           = isset($data['chat_id']) ? $data['chat_id'] : null;
-            $inline_message_id = isset($data['inline_message_id']) ? $data['inline_message_id'] : null;
-
-            if (($chat_id || $inline_message_id) && in_array($action, $limited_methods)) {
-                $timeout = 60;
-
-                while (true) {
-                    if ($timeout <= 0) {
-                        throw new TelegramException('Timed out while waiting for a request spot!');
-                    }
-
-                    $requests = DB::getTelegramRequestCount($chat_id, $inline_message_id);
-
-                    $chat_per_second   = ($requests['LIMIT_PER_SEC'] == 0); // No more than one message per second inside a particular chat
-                    $global_per_second = ($requests['LIMIT_PER_SEC_ALL'] < 30);    // No more than 30 messages per second to different chats
-                    $groups_per_minute = (((is_numeric($chat_id) && $chat_id > 0) || !is_null($inline_message_id)) || ((!is_numeric($chat_id) || $chat_id < 0) && $requests['LIMIT_PER_MINUTE'] < 20));    // No more than 20 messages per minute in groups and channels
-
-                    if ($chat_per_second && $global_per_second && $groups_per_minute) {
-                        break;
-                    }
-
-                    $timeout--;
-                    usleep(self::$limiter_interval * 1000000);
-                }
-
-                DB::insertTelegramRequest($action, $data);
-            }
-        }
-    }
 }
