@@ -27,7 +27,6 @@ use Longman\TelegramBot\Exception\TelegramException;
  * @method  ServerResponse getMe()                              A simple method for testing your bot's auth token. Requires no parameters. Returns basic information about the bot in form of a User object.
  * @method  ServerResponse forwardMessage(array $data)          Use this method to forward messages of any kind. On success, the sent Message is returned.
  * @method  ServerResponse sendPhoto(array $data)               Use this method to send photos. On success, the sent Message is returned.
- * @method  ServerResponse sendMessage(array $data)             Use this method to send text message. On success, the sent Message is returned.
  * @method  ServerResponse sendAudio(array $data)               Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .mp3 format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
  * @method  ServerResponse sendDocument(array $data)            Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
  * @method  ServerResponse sendSticker(array $data)             Use this method to send .webp stickers. On success, the sent Message is returned.
@@ -306,6 +305,20 @@ class Request
     }
 
     /**
+     * @param array $data
+     *
+     * @return ServerResponse
+     * @throws TelegramException
+     */
+    public function sendMessage (array $data)
+    {
+        $text = $data['text'];
+
+        $data['text'] = mb_substr($text, 0, 4096);
+        return $this->send('sendMessage', $data);
+    }
+
+    /**
      * Any statically called method should be relayed to the `send` method.
      *
      * @param string $action
@@ -338,12 +351,12 @@ class Request
             'allowed_updates',
         ]));
         $data['url'] = $url;
-/*
-        // If the certificate is passed as a path, encode and add the file to the data array.
-        if (!empty($data['certificate']) && is_string($data['certificate'])) {
-            $data['certificate'] = self::encodeFile($data['certificate']);
-        }
-*/
+        /*
+                // If the certificate is passed as a path, encode and add the file to the data array.
+                if (!empty($data['certificate']) && is_string($data['certificate'])) {
+                    $data['certificate'] = self::encodeFile($data['certificate']);
+                }
+        */
         $result = $this->setWebhook($data);
 
         if (!$result->isOk()) {
