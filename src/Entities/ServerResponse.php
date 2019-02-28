@@ -37,7 +37,7 @@ class ServerResponse extends Entity
         $data['raw_data'] = $data;
 
         $is_ok  = (bool) ($data['ok'] ?? false);
-        $result = isset($data['result']) ? $data['result'] : null;
+        $result = $data['result'] ?? null;
 
         if ($is_ok && is_array($result)) {
             if ($this->isAssoc($result)) {
