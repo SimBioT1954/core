@@ -27,6 +27,7 @@ use Longman\TelegramBot\Exception\TelegramException;
  * @method  ServerResponse getMe()                              A simple method for testing your bot's auth token. Requires no parameters. Returns basic information about the bot in form of a User object.
  * @method  ServerResponse forwardMessage(array $data)          Use this method to forward messages of any kind. On success, the sent Message is returned.
  * @method  ServerResponse sendPhoto(array $data)               Use this method to send photos. On success, the sent Message is returned.
+ * @method  ServerResponse sendMessage(array $data)             Use this method to send text message. On success, the sent Message is returned.
  * @method  ServerResponse sendAudio(array $data)               Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .mp3 format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
  * @method  ServerResponse sendDocument(array $data)            Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
  * @method  ServerResponse sendSticker(array $data)             Use this method to send .webp stickers. On success, the sent Message is returned.
@@ -118,6 +119,14 @@ class Request
     public function __construct (array $data)
     {
         $this->_client = new Client(['base_uri' => self::API_BASE_URI]);
+        $this->_data = $data;
+    }
+
+    /**
+     * @param array $data
+     */
+    public function setData (array $data)
+    {
         $this->_data = $data;
     }
 
